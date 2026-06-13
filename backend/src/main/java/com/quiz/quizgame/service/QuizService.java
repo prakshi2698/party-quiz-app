@@ -415,5 +415,3 @@ public class QuizService {
         lruCache.put(quizId, quiz);
     }
 }
-
-
