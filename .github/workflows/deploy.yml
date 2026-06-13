@@ -1,0 +1,80 @@
+name: Build and Deploy to EC2
+#Trigger will run when anything pushed to main branch
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    # use ubuntu as build machine(github provides it)
+    runs-on: ubuntu-latest
+    steps:
+      #Step1: Checkout code from github(get your code)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      #Step2: setup Java21 for building spring boot backend app
+      - name: Set up Java 21
+        uses: actions/setup-java@v3
+        with:
+            java-version: '21'
+            distribution: 'temurin'
+
+      #Step3: Build Jar file
+      - name: Build JAR
+        run: ./mvnw clean package -DskipTests
+        working-directory: backend #Run inside backend folder
+
+      #Step4: Run tests
+      - name: Run Tests
+        run: ./mvnw test
+        working-directory: backend
+
+      #Step5: login to docker hub using secrets
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+       #Step 6: setup buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      #Step7: Build docker image for EC2 and push to docker hub
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+            context: backend  # Dockerfile is in backend folder
+            platforms: linux/amd64  #EC2 architecture
+            push: true  #push to Docker Hub
+            tags: ${{ secrets.DOCKER_USERNAME }}/quiz-game-app:latest
+
+
+      #Step8: SSH into EC2 and deploy new image
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+            host: ${{ secrets.EC2_HOST }}
+            username: ${{ secrets.EC2_USERNAME }}
+            key: ${{ secrets.EC2_SSH_KEY }}
+            script: |
+              #pull latest image from Docker Hub
+              docker pull ${{ secrets.DOCKER_USERNAME }}/quiz-game-app:latest
+              
+              #stop and remove old container
+              docker stop quiz-app || true
+              docker rm quiz-app || true
+              
+              # run new container with prod profile
+              docker run -d \
+                -p 8080:8080 \
+                --name quiz-app \
+                --restart always \
+                -e SPRING_PROFILES_ACTIVE=prod \
+                -e AWS_REGION=us-east-1 \
+                -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+                -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+                ${{ secrets.DOCKER_USERNAME }}/quiz-game-app:latest
+
+
