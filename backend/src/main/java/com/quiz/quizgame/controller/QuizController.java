@@ -1,5 +1,6 @@
 package com.quiz.quizgame.controller;
 
+import com.quiz.quizgame.exception.VersionConflictException;
 import com.quiz.quizgame.model.Quiz;
 import com.quiz.quizgame.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +62,12 @@ public class QuizController {
             }
             quizService.addQuiz(quiz);
             return new ResponseEntity<>("Quiz created successfully", HttpStatus.CREATED);
+        } catch (VersionConflictException e) {
+            // 409 Conflict
+            // tells client quiz was modified by someone else
+            // client should fetch fresh data and retry
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -80,6 +87,12 @@ public class QuizController {
             }
             quizService.updateQuiz(quiz);
             return new ResponseEntity<>("Quiz updated successfully", HttpStatus.OK);
+        } catch (VersionConflictException e) {
+            // 409 Conflict
+            // tells client quiz was modified by someone else
+            // client should fetch fresh data and retry
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {
@@ -99,6 +112,12 @@ public class QuizController {
 
             quizService.deleteQuiz(id);
             return new ResponseEntity<>("Quiz deleted successfully", HttpStatus.OK);
+        } catch (VersionConflictException e) {
+            // 409 Conflict
+            // tells client quiz was modified by someone else
+            // client should fetch fresh data and retry
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (RuntimeException e) {

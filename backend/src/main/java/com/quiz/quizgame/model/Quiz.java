@@ -1,26 +1,22 @@
 package com.quiz.quizgame.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "quiz")
+@DynamoDbBean
+@Getter
+@Setter
 public class Quiz {
 
-    @Id
+    @Getter(onMethod_ = {@DynamoDbPartitionKey})
     private String id;
 
     private String name;
     private int maxPlayers;
-
-    @Transient
-    private List<Question> questionList = new ArrayList<>();
+    private int version;
+    private List<Question> questionList = new ArrayList<>();  // stored as JSON array in DynamoDB
 }

@@ -1,25 +1,24 @@
 package com.quiz.quizgame.model;
+import lombok.Getter;
+import lombok.Setter;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "question")
+@DynamoDbBean
+@Getter
+@Setter
 public class Question {
-    @Id
+
+    @Getter(onMethod_ = {@DynamoDbPartitionKey})
     private String id;
+    @Getter(onMethod_ = {@DynamoDbSecondaryPartitionKey(indexNames = "quizId-index")})
     private String quizId;
     private String text;
     private String type;
     private int timeLimit;
-
-    @Transient
     private List<Option> optionList = new ArrayList<>();
 
 }

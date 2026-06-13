@@ -2,25 +2,21 @@ package com.quiz.quizgame.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.quiz.quizgame.enums.Symbol;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "option")
+@DynamoDbBean
+@Getter
+@Setter
 public class Option {
-
-    @Id
+    @Getter(onMethod_ = {@DynamoDbPartitionKey})
     private String id;
-
+    @Getter(onMethod_ = {@DynamoDbSecondaryPartitionKey(indexNames = "questionId-index")})
     private String questionId;
     private String text;
-
-    @Enumerated(EnumType.STRING)
     private Symbol symbol;
 
     @JsonProperty("isCorrect")
