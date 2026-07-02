@@ -21,7 +21,7 @@ function Quiz() {
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   useEffect(() => {
     axios
-      .get("http://localhost:9090/api/quiz")
+      .get("http://localhost:8080/api/quiz")
       .then((res) => {
         const data = res.data;
         if (data.length === 0) {
@@ -32,7 +32,7 @@ function Quiz() {
         // Fetch questions for the first quiz
         const quizId = data[0].id;
         axios
-          .get(`http://localhost:9090/api/quiz/${quizId}/question`)
+          .get(`http://localhost:8080/api/quiz/${quizId}/question`)
           .then((qRes) => {
             data[0].questionList = qRes.data;
             setQuizBank(data);

@@ -40,7 +40,7 @@ function HostView() {
   useEffect(() => {
     //call spring boot api to get all quizzes
     axios
-      .get("http://localhost:9090/api/quiz")
+      .get("http://localhost:8080/api/quiz")
       .then((res) => setQuizList(res.data));
   }, []);
 
@@ -74,7 +74,7 @@ function HostView() {
   async function handleStartQuiz(quizId) {
     //fetch full quiz details from Spring boot
     //includes all ques & options
-    const res = await axios.get(`http://localhost:9090/api/quiz/${quizId}`);
+    const res = await axios.get(`http://localhost:8080/api/quiz/${quizId}`);
 
     //save full quiz data to state
     setQuiz(res.data);

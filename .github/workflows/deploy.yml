@@ -76,7 +76,7 @@ jobs:
 
             # run new container with prod profile
             docker run -d \
-              -p 9090:9090 \
+              -p 8080:8080 \
               --name quiz-app \
               --restart always \
               -e SPRING_PROFILES_ACTIVE=prod \
