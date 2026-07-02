@@ -11,8 +11,8 @@ WORKDIR /app
 COPY target/quiz-game-app-0.0.1-SNAPSHOT.jar app.jar
 
 # Step 4: Tell Docker which port our app runs on
-# Spring Boot runs on 8080 by default
-EXPOSE 8080
+# Spring Boot runs on 9090
+EXPOSE 9090
 
 # Step 5: Command to run when container starts
 # java -jar app.jar starts our Spring Boot app
