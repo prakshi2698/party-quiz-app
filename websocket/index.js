@@ -16,7 +16,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         //only allow GET & POST request type from React app
-        origin: ["http://localhost:8080", "http://54.165.56.138:8080"],
+        origin: ["http://localhost:8080", "http://35.169.121.98:8080"],
         methods: ["GET", "POST"]
     }
 });
