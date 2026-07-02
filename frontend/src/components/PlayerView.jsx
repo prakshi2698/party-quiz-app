@@ -1,6 +1,7 @@
 //decides the screen player sees in their mobile after join page
 //view of selecting options
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import socket from "../socket";
 
 //fixed array of colors & symbols for 4 option buttons
@@ -13,7 +14,15 @@ const OPTION_STYLES = [
 ];
 
 //PlayerView component receives pin & playerName from App.jsx
-function PlayerView({ pin, playerName }) {
+function PlayerView() {
+  //useLocation reads current URL info
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  //read pin and playerName from envelope JoinPage packed
+  const pin = location.state?.pin;
+  const playerName = location.state?.playerName;
+
   //stores current ques obj received from host
   const [question, setQuestion] = useState(null);
 
@@ -34,6 +43,15 @@ function PlayerView({ pin, playerName }) {
   const [waiting, setWaiting] = useState(true);
 
   const [error, setError] = useState(null);
+
+  //if someone opens /player/game without joining pin & playerName will be empty
+  //send them back to /player
+  useEffect(() => {
+    if (!pin || !playerName) {
+      navigate("/join-quiz");
+    }
+  }, []);
+
   //useEffect runs once when component first loads
   useEffect(() => {
     //listen for "room:question-start" event from Node.js server
@@ -99,6 +117,7 @@ function PlayerView({ pin, playerName }) {
     return (
       <div className="error-screen">
         <h2>{error}</h2>
+        <button onClick={() => navigate("/")} Go Home></button>
       </div>
     );
   }
@@ -120,6 +139,7 @@ function PlayerView({ pin, playerName }) {
         <div className="result">
           <h2>Quiz Finished!</h2>
           <p>Thanks for playing!</p>
+          <button onClick={() => navigate("/")}>Go Home</button>
         </div>
       );
     }

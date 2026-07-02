@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import socket from "../socket";
 //fetch quiz data from Spring Boot API
 import axios from "axios";
+//for QR code
+import { QRCodeSVG } from "qrcode.react";
 
 function HostView() {
   //stores generated PIN for this quiz session
@@ -29,11 +31,16 @@ function HostView() {
 
   const [quizEnded, setQuizEnded] = useState(false);
 
+  //making a join link inside QR code
+  //when player scans QR, it opens link with pin- /join-quiz?pin=4521
+  //JoinPage will read pin=4521 and autofill it
+  const joinLink = `${window.location.origin}/join-quiz?pin=${pin}`;
+
   //Fetch quiz list from spring boot
   useEffect(() => {
     //call spring boot api to get all quizzes
     axios
-      .get("http://localhost:8080/api/quiz")
+      .get("http://localhost:9090/api/quiz")
       .then((res) => setQuizList(res.data));
   }, []);
 
@@ -67,7 +74,7 @@ function HostView() {
   async function handleStartQuiz(quizId) {
     //fetch full quiz details from Spring boot
     //includes all ques & options
-    const res = await axios.get(`http://localhost:8080/api/quiz/${quizId}`);
+    const res = await axios.get(`http://localhost:9090/api/quiz/${quizId}`);
 
     //save full quiz data to state
     setQuiz(res.data);
@@ -144,11 +151,21 @@ function HostView() {
   //Screen2: Main host control screen: shows when room created &quiz loaded
   return (
     <div className="host-view">
-      <div className="pin-display">
-        <h2>
-          Game PIN: <span>{pin}</span>
-        </h2>
-        <p>Players joined: {players.length}</p>
+      <div
+        className="pin-display"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "30px",
+        }}
+      >
+        <div>
+          <h2>
+            Game PIN: <span>{pin}</span>
+          </h2>
+          <p>Players joined: {players.length}</p>
+        </div>
+        <QRCodeSVG value={joinLink} size={180} />
       </div>
       <div className="question-display">
         <h3>

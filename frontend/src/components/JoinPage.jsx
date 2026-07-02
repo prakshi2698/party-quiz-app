@@ -1,17 +1,31 @@
 //first page which player sees as soon as they open the link of app.
 //of enter pin, name, click join button
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import socket from "../socket";
 
 function JoinPage({ onJoined }) {
-  const [pin, setPin] = useState("");
+  const navigate = useNavigate(); //this lets us change URL from inside component
+
+  //useSearchParams reads the query param from URL
+  const [searchParams] = useSearchParams();
+
+  //if pin exists in URL use it, else make empty str for manual entry
+  const pinFromURL = searchParams.get("pin") || "";
+
+  const [pin, setPin] = useState(pinFromURL); //pre filled with URL pin
   const [name, setName] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     //Register listeners once
     socket.on("room:joined", (data) => {
-      onJoined({ pin: data.pin, name: data.playerName });
+      navigate("/quiz-live", {
+        state: {
+          pin: data.pin,
+          playerName: data.playerName,
+        },
+      });
     });
     socket.on("room:error", (msg) => {
       setError(msg);
@@ -38,6 +52,9 @@ function JoinPage({ onJoined }) {
         type="text"
         placeholder="Enter PIN"
         value={pin}
+        //if pin came from URL then disable input, player cant change it
+        //if no pin in URL, allow manual typing as before
+        disabled={!!pinFromURL}
         onChange={(e) => setPin(e.target.value)}
       />
       <input
